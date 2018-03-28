@@ -10,7 +10,6 @@ var RESULTS_PER_PAGE = 50;
 var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data.json';
 var SERVICED_QUERIES_FILE = './serviced-queries.json';
 
-
 var request = request.defaults({
   url: 'https://api.cognitive.microsoft.com/bing/v7.0/search',  
   headers: {
@@ -33,10 +32,7 @@ var request = request.defaults({
 });
 
 // Note: for now, we only care about rank 1 newspapers
-var newspapers = JSON.parse(fs.readFileSync('./newspapers.json', 'utf8'))
-  .filter(function (e) {
-    return parseInt(e.rank) === 1;
-  });
+var newspapers = JSON.parse(fs.readFileSync('./newspapers.json', 'utf8'));
 var searchTerms = JSON.parse(fs.readFileSync('./search-terms.json', 'utf8'));
 
 var languageToSearchTerms = _.groupBy(searchTerms, function (e) {
