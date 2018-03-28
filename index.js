@@ -30,7 +30,8 @@ var bingRequest = request.defaults({
   },
   retryStrategy: function(err, res, body) {
     return err || request.RetryStrategies.HTTPOrNetworkError(err, res, body) || res.statusCode !== 200;
-  }, qs: {
+  },
+  qs: {
     'count': RESULTS_PER_PAGE,
     'responseFilter': 'Webpages'
   }
@@ -44,13 +45,13 @@ var languageToSearchTerms = _.groupBy(searchTerms, function (e) {
   return e.language;
 });
 
-// Maps from newspaper title to (article title, bing json object)
-var nTToArticles;
+// Maps from newspaper title to (webpage title, bing json object)
+var nTToWebpages;
 var servicedQueries;
 if (fs.existsSync(NEWSPAPERS_SCRAPED_DATA_FILE)) {
-  nTToArticles = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
+  nTToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
 } else {
-  nTToArticles = {};
+  nTToWebpages = {};
 }
 if (fs.existsSync(SERVICED_QUERIES_FILE)) {
   servicedQueries = JSON.parse(fs.readFileSync(SERVICED_QUERIES_FILE, 'utf8'));
@@ -59,8 +60,8 @@ if (fs.existsSync(SERVICED_QUERIES_FILE)) {
 }
 
 newspapers.forEach(function (newspaper) {
-  if (!(newspaper.title in nTToArticles)) {
-    nTToArticles[newspaper.title] = {};
+  if (!(newspaper.title in nTToWebpages)) {
+    nTToWebpages[newspaper.title] = {};
   }
 });
 
@@ -71,7 +72,7 @@ function processNewspaper(newspaper, cb1) {
     relevantSearchTerms = relevantSearchTerms.concat(languageToSearchTerms[newspaper.language]);
   }
 
-  var aTToBingResult = nTToArticles[newspaper.title];
+  var wTToBingResult = nTToWebpages[newspaper.title];
 
   function processNewspaperAndSearchTerm(searchTerm, cb2) {
     var query = `${searchTerm.keywords} (site: ${newspaper.link})`;
@@ -120,15 +121,15 @@ function processNewspaper(newspaper, cb1) {
           }
 
           body.webPages.value.forEach(function (bingResult) {
-            if (!(bingResult.name in aTToBingResult)) {
-              aTToBingResult[bingResult.name] = bingResult;
+            if (!(bingResult.name in wTToBingResult)) {
+              wTToBingResult[bingResult.name] = bingResult;
             }
             if (searchTerm.program === 'PEPFAR') {
-              aTToBingResult[bingResult.name].pepfar = true;
+              wTToBingResult[bingResult.name].pepfar = true;
             }
 
             if (searchTerm.program === 'PMI') {
-              aTToBingResult[bingResult.name].pmi = true;
+              wTToBingResult[bingResult.name].pmi = true;
             }
           });
           resultsOffset += RESULTS_PER_PAGE;
@@ -151,7 +152,7 @@ function processNewspaper(newspaper, cb1) {
       return cb1(err);
     }
 
-    fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nTToArticles), 'utf8');
+    fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nTToWebpages), 'utf8');
     fs.writeFileSync(SERVICED_QUERIES_FILE, JSON.stringify(servicedQueries), 'utf8');
 
     console.log('Finished processing newspaper: ' + newspaper.title);

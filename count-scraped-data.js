@@ -3,13 +3,13 @@ var fs = require('fs');
 
 var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data.json';
 
-var nTToArticles = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
+var nTToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
 
-var totalArticles = 0;
+var totalWebpages = 0;
 
-Object.keys(nTToArticles).forEach(function(key) {
-  console.log(key, Object.keys(nTToArticles[key]).length);
-  totalArticles += Object.keys(nTToArticles[key]).length;
+Object.keys(nTToWebpages).forEach(function(newspaperTitle) {
+  console.log(newspaperTitle, Object.keys(nTToWebpages[newspaperTitle]).length);
+  totalWebpages += Object.keys(nTToWebpages[newspaperTitle]).length;
 });
 
-console.log('Total articles: ' + totalArticles);
+console.log('Total webpages: ' + totalWebpages);
