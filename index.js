@@ -37,7 +37,6 @@ var bingRequest = request.defaults({
   }
 });
 
-// Note: for now, we only care about rank 1 newspapers
 var newspapers = JSON.parse(fs.readFileSync('./newspapers.json', 'utf8'));
 var searchTerms = JSON.parse(fs.readFileSync('./search-terms.json', 'utf8'));
 
