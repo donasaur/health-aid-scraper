@@ -10,22 +10,27 @@ var RESULTS_PER_PAGE = 50;
 var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data.json';
 var SERVICED_QUERIES_FILE = './serviced-queries.json';
 
-var request = request.defaults({
+var bingRequest = request.defaults({
   url: 'https://api.cognitive.microsoft.com/bing/v7.0/search',  
   headers: {
     'Ocp-Apim-Subscription-Key': '6e290f2bf904465e894febbace8774b2',
   },
   json: true,
   delayStrategy: function(err, res, body) {
-    if (res.statusCode === 429 && res.headers['Retry-After']) {
-      console.log("response-specified delay: " + res.headers['Retry-After']);
-      return parseInt(res.headers['Retry-After'] * 1000);
-    } else {
-      console.log("standard delay: " + 1);
-      return 1000;
+    var nextReqDelay = 1000;
+    if (!err && res.statusCode === 429) {
+      if ('retry-after' in res.headers) {
+        nextReqDelay = parseInt(res.headers['retry-after']) * 1000;
+        console.log('response-specified delay: ' + nextReqDelay);
+        return nextReqDelay;
+      }
     }
+    console.log('standard delay: ' + nextReqDelay);
+    return nextReqDelay;
   },
-  qs: {
+  retryStrategy: function(err, res, body) {
+    return err || request.RetryStrategies.HTTPOrNetworkError(err, res, body) || res.statusCode !== 200;
+  }, qs: {
     'count': RESULTS_PER_PAGE,
     'responseFilter': 'Webpages'
   }
@@ -81,7 +86,7 @@ function processNewspaper(newspaper, cb1) {
     async.until(
       function() { return totalEstimatedMatches >= 0 && resultsOffset >= totalEstimatedMatches; },
       function (cb3) {
-        request({
+        bingRequest({
           qs: {
             'offset': resultsOffset,
             'q': query
@@ -90,6 +95,12 @@ function processNewspaper(newspaper, cb1) {
           if (err) {
             return cb3(err);
           }
+
+          if (res.statusCode !== 200) {
+            console.log('Ended up with a response with a status code that is not 200');
+            process.exit(1);
+          }
+
           if (!('webPages' in body) || body.webPages.totalEstimatedMatches <= 0) {
             totalEstimatedMatches = 0;
             return cb3();
@@ -97,6 +108,15 @@ function processNewspaper(newspaper, cb1) {
 
           if (totalEstimatedMatches < 0) {
             totalEstimatedMatches = body.webPages.totalEstimatedMatches;
+
+            if (totalEstimatedMatches > RESULTS_PER_PAGE) {
+              console.log(newspaper.title + ' has a total of ' + totalEstimatedMatches + ' estimated matches for query ' + query);
+            }
+          }
+
+          if (totalEstimatedMatches > RESULTS_PER_PAGE) {
+            console.log('current offset: ' + resultsOffset);
+            console.log('number of results on this page: ' + body.webPages.value.length);
           }
 
           body.webPages.value.forEach(function (bingResult) {
@@ -142,10 +162,10 @@ function processNewspaper(newspaper, cb1) {
 // Main loop
 async.forEachSeries(newspapers, processNewspaper, function (err) {
   if (err) {
-    console.log("Error during op");
+    console.log('Error during op');
     console.log(err);
     return;
   }
 
-  console.log("Success");
+  console.log('Success');
 });
