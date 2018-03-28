@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/donasaur/health-aid-scraper/issues"
   },
-  "homepage": "https://github.com/donasaur/health-aid-scraper#readme"
+  "homepage": "https://github.com/donasaur/health-aid-scraper#readme",
+  "dependencies": {
+    "async": "^2.6.0",
+    "csv-parse": "^2.0.4",
+    "lodash": "^4.17.5",
+    "requestretry": "^1.13.0"
+  }
 }

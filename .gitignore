@@ -1,0 +1,6 @@
+newspapers.csv
+search-terms.csv
+newspapers.json
+search-terms.json
+newspapers-scraped-data*.json
+serviced-queries*.json
