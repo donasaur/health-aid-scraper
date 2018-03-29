@@ -5,13 +5,13 @@ var request = require('requestretry');
 
 var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data.json';
 
-var nTToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
+var nIdToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
 
 var bingResults = [];
 var numUnsavedTimestamps = 0;
 
-Object.keys(nTToWebpages).forEach(function(newspaperTitle) {
-  var wTToBingResult = nTToWebpages[newspaperTitle];
+Object.keys(nIdToWebpages).forEach(function(newspaperId) {
+  var wTToBingResult = nIdToWebpages[newspaperId];
   Object.keys(wTToBingResult).forEach(function (webpageTitle) {
     var bingResult = wTToBingResult[webpageTitle];
     bingResults.push(bingResult);
@@ -66,7 +66,7 @@ function processBingResult(bingResult, cb) {
 
     if (numUnsavedTimestamps > 0 && (numUnsavedTimestamps % 100) === 0) {
       console.log('Saving unsaved first-indexed timestamps');
-      fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nTToWebpages), 'utf8');
+      fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nIdToWebpages), 'utf8');
       numUnsavedTimestamps = 0;
     }
     cb();
@@ -82,7 +82,7 @@ async.forEachSeries(bingResults, processBingResult, function (err) {
 
   if (numUnsavedTimestamps > 0) {
     console.log('Saving new first-indexed timestamps');
-    fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nTToWebpages), 'utf8');
+    fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nIdToWebpages), 'utf8');
     numUnsavedTimestamps = 0;
   }
 

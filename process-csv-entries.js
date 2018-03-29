@@ -1,6 +1,7 @@
 
 var fs = require('fs');
 var parse = require('csv-parse/lib/sync');
+const { URL } = require('url');
 
 var origNewspapersCsv = fs.readFileSync('./newspapers.csv', 'utf8');
 
@@ -12,6 +13,10 @@ var newspapersCsv = origNewspapersCsv
 var newspapers = parse(newspapersCsv, {
   columns: true,
   delimiter: '\t'
+});
+
+newspapers.forEach(function (newspaper) {
+  newspaper.uid = (new URL(newspaper.link)).hostname;
 });
 
 console.log(newspapers[0]);

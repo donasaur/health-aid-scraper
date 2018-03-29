@@ -1,7 +1,10 @@
+snapshots
 newspapers.csv
 search-terms.csv
 newspapers.json
 search-terms.json
-newspapers-scraped-data*.json
-serviced-queries*.json
+newspapers-scraped-data.json
+serviced-queries.json
 webpages-data-view.txt
+newspaper-webpages-counts.txt
+serviced-queries.txt

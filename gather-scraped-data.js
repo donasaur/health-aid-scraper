@@ -44,13 +44,13 @@ var languageToSearchTerms = _.groupBy(searchTerms, function (e) {
   return e.language;
 });
 
-// Maps from newspaper title to (webpage title, bing json object)
-var nTToWebpages;
+// Maps from newspaper id to (webpage title, bing json object)
+var nIdToWebpages;
 var servicedQueries;
 if (fs.existsSync(NEWSPAPERS_SCRAPED_DATA_FILE)) {
-  nTToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
+  nIdToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
 } else {
-  nTToWebpages = {};
+  nIdToWebpages = {};
 }
 if (fs.existsSync(SERVICED_QUERIES_FILE)) {
   servicedQueries = JSON.parse(fs.readFileSync(SERVICED_QUERIES_FILE, 'utf8'));
@@ -59,8 +59,8 @@ if (fs.existsSync(SERVICED_QUERIES_FILE)) {
 }
 
 newspapers.forEach(function (newspaper) {
-  if (!(newspaper.title in nTToWebpages)) {
-    nTToWebpages[newspaper.title] = {};
+  if (!(newspaper.uid in nIdToWebpages)) {
+    nIdToWebpages[newspaper.uid] = {};
   }
 });
 
@@ -71,7 +71,7 @@ function processNewspaper(newspaper, cb1) {
     relevantSearchTerms = relevantSearchTerms.concat(languageToSearchTerms[newspaper.language]);
   }
 
-  var wTToBingResult = nTToWebpages[newspaper.title];
+  var wTToBingResult = nIdToWebpages[newspaper.uid];
 
   function processNewspaperAndSearchTerm(searchTerm, cb2) {
     var query = `${searchTerm.keywords} (site: ${newspaper.link})`;
@@ -82,6 +82,7 @@ function processNewspaper(newspaper, cb1) {
     }
 
     var resultsOffset = 0;
+    var bingQueryResults = [];
     var totalEstimatedMatches = -1;
     async.until(
       function() { return totalEstimatedMatches >= 0 && resultsOffset >= totalEstimatedMatches; },
@@ -101,6 +102,8 @@ function processNewspaper(newspaper, cb1) {
             process.exit(1);
           }
 
+          bingQueryResults.push(body);
+
           if (!('webPages' in body) || body.webPages.totalEstimatedMatches <= 0) {
             totalEstimatedMatches = 0;
             return cb3();
@@ -110,7 +113,7 @@ function processNewspaper(newspaper, cb1) {
             totalEstimatedMatches = body.webPages.totalEstimatedMatches;
 
             if (totalEstimatedMatches > RESULTS_PER_PAGE) {
-              console.log(newspaper.title + ' has a total of ' + totalEstimatedMatches + ' estimated matches for query ' + query);
+              console.log(newspaper.uid + ' has a total of ' + totalEstimatedMatches + ' estimated matches for query ' + query);
             }
           }
 
@@ -138,7 +141,7 @@ function processNewspaper(newspaper, cb1) {
         if (err) {
           return cb2(err);
         }
-        servicedQueries[query] = true;
+        servicedQueries[query] = bingQueryResults;
         console.log('Serviced query: ' + query);
         cb2();
       }
@@ -151,10 +154,10 @@ function processNewspaper(newspaper, cb1) {
       return cb1(err);
     }
 
-    fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nTToWebpages), 'utf8');
+    fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nIdToWebpages), 'utf8');
     fs.writeFileSync(SERVICED_QUERIES_FILE, JSON.stringify(servicedQueries), 'utf8');
 
-    console.log('Finished processing newspaper: ' + newspaper.title);
+    console.log('Finished processing newspaper: ' + newspaper.uid);
     cb1();
   });
 }
