@@ -16,10 +16,10 @@ var newspapers = parse(newspapersCsv, {
 });
 
 newspapers.forEach(function (newspaper) {
-  newspaper.uid = (new URL(newspaper.link)).hostname;
+  newspaper.uid = (new URL(newspaper.link)).hostname.replace('www.', '');
 });
 
-console.log(newspapers[0]);
+console.log(newspapers[23]);
 
 fs.writeFileSync('./newspapers.json', JSON.stringify(newspapers), 'utf8');
 
