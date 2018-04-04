@@ -3,18 +3,18 @@ var fs = require('fs');
 var async = require('async');
 var request = require('requestretry');
 
-var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data.json';
+var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data-wayback.json';
 
 var nIdToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
 
-var bingResults = [];
+var searchResults = [];
 var numUnsavedTimestamps = 0;
 
 Object.keys(nIdToWebpages).forEach(function(newspaperId) {
-  var wTToBingResult = nIdToWebpages[newspaperId];
-  Object.keys(wTToBingResult).forEach(function (webpageTitle) {
-    var bingResult = wTToBingResult[webpageTitle];
-    bingResults.push(bingResult);
+  var wTToSearchResult = nIdToWebpages[newspaperId];
+  Object.keys(wTToSearchResult).forEach(function (webpageTitle) {
+    var searchResult = wTToSearchResult[webpageTitle];
+    searchResults.push(searchResult);
   });
 });
 
@@ -34,15 +34,15 @@ var waybackRequest = request.defaults({
   }
 });
 
-function processBingResult(bingResult, cb) {
-  if ('firstIndexedTimestamp' in bingResult) {
-    console.log('Already added first-indexed timestamp for: ' + bingResult.url);
+function processsearchResult(searchResult, cb) {
+  if ('waybackTimestamp' in searchResult) {
+    console.log('Already added wayback timestamp for: ' + searchResult.url);
     return cb();
   }
 
   waybackRequest({
     qs: {
-      'url': bingResult.url
+      'url': searchResult.url
     }
   }, function (err, res, body) {
     if (err) {
@@ -55,17 +55,17 @@ function processBingResult(bingResult, cb) {
     }
 
     if (body.archived_snapshots && body.archived_snapshots.closest && body.archived_snapshots.closest.timestamp) {
-      bingResult.firstIndexedTimestamp = body.archived_snapshots.closest.timestamp;
+      searchResult.waybackTimestamp = body.archived_snapshots.closest.timestamp;
     } else {
-      bingResult.firstIndexedTimestamp = null;
+      searchResult.waybackTimestamp = null;
     }
 
     numUnsavedTimestamps += 1;
 
-    console.log('Added first-indexed timestamp for: ' + bingResult.url + ' (' + numUnsavedTimestamps + ')');
+    console.log('Added wayback timestamp for: ' + searchResult.url + ' (' + numUnsavedTimestamps + ')');
 
     if (numUnsavedTimestamps > 0 && (numUnsavedTimestamps % 100) === 0) {
-      console.log('Saving unsaved first-indexed timestamps');
+      console.log('Saving unsaved wayback timestamps');
       fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nIdToWebpages), 'utf8');
       numUnsavedTimestamps = 0;
     }
@@ -73,7 +73,7 @@ function processBingResult(bingResult, cb) {
   });
 }
 
-async.forEachSeries(bingResults, processBingResult, function (err) {
+async.forEachSeries(searchResults, processsearchResult, function (err) {
   if (err) {
     console.log('Error during op');
     console.log(err);
@@ -81,7 +81,7 @@ async.forEachSeries(bingResults, processBingResult, function (err) {
   }
 
   if (numUnsavedTimestamps > 0) {
-    console.log('Saving new first-indexed timestamps');
+    console.log('Saving new wayback timestamps');
     fs.writeFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, JSON.stringify(nIdToWebpages), 'utf8');
     numUnsavedTimestamps = 0;
   }

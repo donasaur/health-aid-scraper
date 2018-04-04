@@ -2,7 +2,7 @@
 var fs = require('fs');
 var _ = require('lodash');
 
-var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data.json';
+var NEWSPAPERS_SCRAPED_DATA_FILE = './newspapers-scraped-data-wayback.json';
 
 var nIdToWebpages = JSON.parse(fs.readFileSync(NEWSPAPERS_SCRAPED_DATA_FILE, 'utf8'));
 
