@@ -1,6 +1,6 @@
 snapshots
 
-newspapers.csv
+newspapers.txt
 newspapers.json
 
 serviced-queries
@@ -11,3 +11,7 @@ newspapers-scraped-data-wayback.json
 
 webpages-data-view.txt
 newspaper-webpages-counts.txt
+
+normalized-urls-bing.txt
+normalized-urls-google.txt
+webpages-data-view-*.txt

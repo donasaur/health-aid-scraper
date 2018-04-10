@@ -7,7 +7,7 @@ var Json2csvParser = require('json2csv').Parser;
 
 var GEN_SIMPLIFIED_NEWSPAPERS_VIEW = true;
 
-var newspapersCsv = fs.readFileSync('./newspapers.csv', 'utf8');
+var newspapersCsv = fs.readFileSync('./newspapers.txt', 'utf8');
 
 var newspapers = parse(newspapersCsv, {
   columns: true,
