@@ -6,7 +6,7 @@ var parse = require('csv-parse/lib/sync');
 
 var webpagesCsvBing = fs.readFileSync('./webpages-data-view-032918.txt', 'utf8');
 
-var webpagesCsvGoogle = fs.readFileSync('./webpages-data-view-040418.txt', 'utf8')
+var webpagesCsvGoogle = fs.readFileSync('./webpages-data-view-040418.txt', 'utf8');
 
 var webpagesBing = parse(webpagesCsvBing, {
   columns: true,
