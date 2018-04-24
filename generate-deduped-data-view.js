@@ -86,6 +86,8 @@ Object.keys(normalizedUrlToWebpages).forEach(k => {
   earliestPageFoundSoFar['google indexed'] = googleIndexed;
   earliestPageFoundSoFar['bing indexed'] = bingIndexed;
 
+  earliestPageFoundSoFar.url = earliestPageFoundSoFar.url.replace('tto.tuoitre.vn', 'thethao.tuoitre.vn');
+
   normalizedUrlToWebpage[k] = earliestPageFoundSoFar;
 });
 

@@ -1,4 +1,5 @@
 snapshots
+webpages
 
 newspapers.txt
 newspapers.json
@@ -16,5 +17,7 @@ normalized-urls-bing.txt
 normalized-urls-google.txt
 webpages-data-view-*.txt
 
-
+normalized-url-to-file-id.json
 webpages-data-view-deduped.txt
+
+sftp-config*.json

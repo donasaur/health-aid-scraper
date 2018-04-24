@@ -14,11 +14,12 @@ var WEBPAGES_PREFIX = './webpages';
 
 var webpageRequest = request.defaults({
   maxAttempts: 3,
-  retryDelay: 1000,
+  retryDelay: 5000,
   retryStrategy: function(err, res, body) {
     var retryRequest = err || request.RetryStrategies.HTTPOrNetworkError(err, res, body);
     return retryRequest;
-  }
+  },
+  strictSSL: false
 });
 
 var webpages = parse(webpagesCsv, {
@@ -50,7 +51,7 @@ function processWebpage(webpage, cb) {
   }
 
   webpageRequest({
-    url: webpage.url
+    url: webpage.url.replace('tto.tuoitre.vn', 'thethao.tuoitre.vn')
   }, function (err, res, body) {
     if (err) {
       console.log(err);
