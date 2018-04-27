@@ -19,6 +19,7 @@
   "dependencies": {
     "async": "^2.6.0",
     "csv-parse": "^2.0.4",
+    "html-entities": "^1.2.1",
     "json2csv": "^4.0.2",
     "lodash": "^4.17.5",
     "moment": "^2.21.0",
