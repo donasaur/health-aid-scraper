@@ -16,7 +16,7 @@ var PEPFAR_TERMS = ["PEPFAR", "President's Emergency Plan for AIDS Relief", "Pre
   return e.toLowerCase().replace(alphanumericRegex, '');
 });
 
-var PMI_OR_TERMS = ["malaria", "paludisme", "malária"].map(e => {
+var PMI_OR_TERMS = ["malaria", "paludisme", "malária", "PEPFAR"].map(e => {
   return e.toLowerCase().replace(alphanumericRegex, '');
 });
 
@@ -24,8 +24,8 @@ var PMI_TERMS = ["President's Malaria Initiative", "Presidents Malaria Initiativ
   return e.toLowerCase().replace(alphanumericRegex, '');
 });
 
-SPECIAL_PEPFAR_TERMS = ["总统防治艾滋病紧急救援计划"];
-SPECIAL_PMI_TERMS = ["总统防治疟疾行动计划"];
+SPECIAL_PEPFAR_TERMS = ["总统防治艾滋病紧急救援计划", "总统疟疾倡议"];
+SPECIAL_PMI_TERMS = ["总统防治疟疾行动计划", "总统艾滋救助紧急计划"];
 
 var webpages = parse(webpagesCsv, {
   columns: true,
@@ -59,8 +59,8 @@ webpages.forEach(webpage => {
     }
   }
 
-  if (webpage.language === 'Mandarin') {
-    console.log('Mandarin page');
+  if (webpage.language === 'Mandarin' || webpage.language === 'Chinese') {
+    console.log('Chinese webpage found');
     for (var is = 0; is < SPECIAL_PEPFAR_TERMS.length; is++) {
       if (specialWebpageContents.includes(SPECIAL_PEPFAR_TERMS[is])) {
         webpage['pepfar term(s) present?'] = true;
@@ -86,8 +86,8 @@ webpages.forEach(webpage => {
       }
     }
 
-    if (webpage.language === 'Mandarin') {
-      console.log('Mandarin page');
+    if (webpage.language === 'Mandarin' || webpage.language === 'Chinese') {
+      console.log('Chinese webpage found');
       for (var ks = 0; ks < SPECIAL_PMI_TERMS.length; ks++) {
         if (specialWebpageContents.includes(SPECIAL_PMI_TERMS[ks])) {
           webpage['pmi term(s) present?'] = true;
